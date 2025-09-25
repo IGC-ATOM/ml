@@ -1,0 +1,168 @@
+1) Linear regression
+
+import matplotlib.pyplot as plt 
+from scipy import stats
+
+x = [5,7,8,7,2,17,2,9,4,11,12,9,6]
+y = [99,86,87,88,111,86,103,87,94,78,77,85,86]
+
+slope, intercept, r, p, std_err = stats.linregress(x,y)
+
+def myfun(x):
+    return slope * x + intercept
+
+mymodel = list(map(myfun,x))
+
+plt.scatter(x, y)
+plt.plot(x, mymodel)
+plt.show()
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+2) Decision Tree
+
+=> Normal Data
+ 
+import matplotlib.pyplot as plt 
+from sklearn.tree import DecisionTreeClassifier,plot_tree
+import pandas as pd 
+
+data = {
+        "Age" : [34,52,68,22],
+        "Income" : [45000, 34000, 23000, 65000],
+        "Buy!!" : [1,0,0,1]
+        }
+
+df=pd.DataFrame(data)
+
+dt=DecisionTreeClassifier()
+
+x=df[["Age", "Income"]]
+y=df["Buy!!"]
+dt.fit(x,y)
+
+plot_tree(dt,feature_names=["Age","Income"],class_names=["Buy!!","Not"])
+
+plt.show()
+
+___________________________________________________________
+
+
+=> Iris Data
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+
+iris = load_iris()
+x = iris.data
+y = iris.target
+
+clf=DecisionTreeClassifier(random_state=0)
+clf.fit(x,y)
+
+plot_tree(clf,feature_names=iris.feature_names, class_names=iris.target_names)
+plt.show()
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+3) Logistic_Regression
+
+import pandas as pd 
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+
+data = {
+    'UserID': [1, 2, 3, 4, 5],
+    'Name': ['Parth', 'Mahipal', 'Sujal', 'Sanyam', 'Paras'],
+    'Age': [22, 35, 26, 25, 32],
+    'Salary': [60000, 50000, 35000, 40000, 42000],
+    'Purchased': ["Yes", "No", "Yes", "No", "Yes"]
+}
+
+df=pd.DataFrame(data)
+print=(data)
+df["Purchased"] = df["Purchased"].map({"Yes":0,"No":1})
+
+purchaesd = df[df["Purchased"]==0]
+not_Purchased = df[df["Purchased"]==1]
+
+
+plt.scatter(purchaesd["Age"], purchaesd["Salary"], color="red")
+plt.scatter(not_Purchased["Age"], not_Purchased["Salary"], color="blue")
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+4) KNN
+
+from sklearn.neighbors import KNeighborsClassifier
+import matplotlib.pyplot as plt
+
+x = [20, 5, 150, 0.3, 0.2, 5, 190, 220, 80]
+y = [0, 0, 0, 40, 25, 200, 0, 0, 0]
+classes = [0, 0, 0, 1, 1, 1, 2, 2, 2]
+
+new_x, new_y = 0, 8
+
+X = list(zip(x, y))
+
+
+knn = KNeighborsClassifier()
+knn.fit(X, classes)
+
+newpoint = [[new_x, new_y]]
+prediction = knn.predict(newpoint)
+
+plt.scatter(x + [new_x], y + [new_y], c=classes + [prediction[0]])
+
+
+plt.text(new_x + 2, new_y + 2,f"Predicted: {prediction[0]}", fontsize=10, color="red")
+
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.title("KNN Classification with Predicted Label")
+plt.show()
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+5) Kmeans
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.cluster import KMeans
+
+data = [
+    [1, 2], [2, 3], [3, 1], [8, 9], [9, 10], [10, 8],[25, 30], [24, 27], [27, 29]
+    ]
+
+
+kmeans=KMeans(n_clusters=3,random_state=69)
+kmeans.fit(data)
+kmeans.predict(data)
+
+centroids=kmeans.cluster_centers_
+
+plt.scatter([p[0] for p in data],[ p[1] for p in data])
+plt.scatter(centroids[:,0], centroids[:,1])
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+6) Kmeans Elbow
+
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+X = [
+    [1, 2], [2, 3], [3, 1], [8, 9], [9, 10], [10, 8],[25, 30], [24, 27], [27, 29]
+]
+
+wcss=[]
+for k in range(1,10):
+    kmeans=KMeans(n_clusters=k,random_state=42)
+    kmeans.fit(X)
+    wcss.append(kmeans.inertia_)
+
+plt.plot(range(1,10),wcss,marker="o")
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
