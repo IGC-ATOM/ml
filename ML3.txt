@@ -1,0 +1,188 @@
+1) Backpropagation
+
+import numpy as np
+
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size):
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.weights_input_hidden = np.random.randn(self.input_size, self.hidden_size)
+        self.weights_hidden_output = np.random.randn(self.hidden_size, self.output_size)
+        self.bias_hidden = np.zeros((1, self.hidden_size))
+        self.bias_output = np.zeros((1, self.output_size))
+
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def sigmoid_derivative(self, x):
+        return x * (1 - x)
+
+    def feedforward(self, X):
+        self.hidden_activation = np.dot(X, self.weights_input_hidden) + self.bias_hidden
+        self.hidden_output = self.sigmoid(self.hidden_activation)
+        self.output_activation = np.dot(self.hidden_output, self.weights_hidden_output) + self.bias_output
+        self.predicted_output = self.sigmoid(self.output_activation)
+        return self.predicted_output
+
+    def backward(self, X, y, learning_rate):
+        output_error = y - self.predicted_output
+        output_delta = output_error * self.sigmoid_derivative(self.predicted_output)
+        hidden_error = np.dot(output_delta, self.weights_hidden_output.T)
+        hidden_delta = hidden_error * self.sigmoid_derivative(self.hidden_output)
+        self.weights_hidden_output += np.dot(self.hidden_output.T, output_delta) * learning_rate
+        self.bias_output += np.sum(output_delta, axis=0, keepdims=True) * learning_rate
+        self.weights_input_hidden += np.dot(X.T, hidden_delta) * learning_rate
+        self.bias_hidden += np.sum(hidden_delta, axis=0, keepdims=True) * learning_rate
+
+    def train(self, X, y, epochs, learning_rate):
+        for epoch in range(epochs):
+            output = self.feedforward(X)
+            self.backward(X, y, learning_rate)
+            if epoch % 4000 == 0:
+                loss = np.mean(np.square(y - output))
+                print(f"Epoch {epoch}, Loss:{loss}")
+
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
+
+nn = NeuralNetwork(input_size=2, hidden_size=4, output_size=1)
+nn.train(X, y, epochs=10000, learning_rate=0.1)
+
+output = nn.feedforward(X)
+print("Predictions after training:")
+print(output)
+
+predicted_labels = (output > 0.5).astype(int)
+accuracy = np.mean(predicted_labels == y)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+2) GuassianNB
+
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+X = [[25, 50000], [30, 60000], [35, 80000], [40, 90000],
+     [20, 20000], [45, 100000], [50, 110000]]
+y = [1, 0, 1, 0, 0, 1, 1]
+
+model = GaussianNB()
+model.fit(X, y)
+
+new_user = [[33, 70000]]
+prediction = model.predict(new_user)[0]
+print("Prediction:", "Purchased" if prediction == 1 else "Not Purchased")
+
+y_pred = model.predict(X)
+accuracy = accuracy_score(y, y_pred)
+print("Accuracy:", round(accuracy * 100, 2), "%")
+
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+3) SVM on iris dataset
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = SVC(kernel='poly')
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"SVM Accuracy on Iris dataset: {accuracy:.2f}")
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+4) SVM works on non linear & separable data of circle containing
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_circles
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+X, y = make_circles(n_samples=100, factor=0.5, noise=0.05, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = SVC(kernel='rbf', C=1.0, gamma='auto', random_state=42)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+print("SVM Accuracy:", accuracy_score(y_test, y_pred))
+
+def plot_decision_boundary(X, y, clf):
+    xx, yy = np.meshgrid(np.arange(X[:,0].min()-1, X[:,0].max()+1, 0.01),
+                         np.arange(X[:,1].min()-1, X[:,1].max()+1, 0.01))
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
+    plt.contourf(xx, yy, Z, alpha=0.8, cmap=plt.cm.RdBu)
+    plt.scatter(X[:,0], X[:,1], c=y, cmap=plt.cm.RdBu, s=20, edgecolors='k')
+    plt.title("SVM with RBF Kernel")
+    plt.show()
+
+plot_decision_boundary(X, y, model)
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+5) SVM using Polynomial Kernel on iris Dataset
+
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+X, y = datasets.load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = SVC(kernel='poly', degree=3, random_state=42)
+model.fit(X_train, y_train)
+
+accuracy = accuracy_score(y_test, model.predict(X_test))
+print(f"SVM Accuracy with Polynomial Kernel: {accuracy:.2f}")
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+6) SVM Numeric
+
+import numpy as np
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+X = np.array([[1, 2], [2, 3], [3, 4], [4, 5], [5, 6],
+              [1, 5], [2, 4], [3, 3], [4, 2], [5, 1]])
+y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+clf = SVC(kernel='linear', random_state=42)
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}")
+
+new_sample = np.array([[2.5, 3.5]])
+prediction_new = clf.predict(new_sample)
+print(f"Prediction for new sample {new_sample[0]}: {prediction_new[0]}")
