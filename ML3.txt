@@ -163,7 +163,56 @@ print(f"SVM Accuracy with Polynomial Kernel: {accuracy:.2f}")
 
 _*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
 
-6) SVM Numeric
+6) SVM Plot and Accuracy sujal
+
+=> Default Data
+
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+x =np.array([[1,2],[2,3],[3,3],[4,5],[5,6],[1,5],[2,4],[3,2],[4,1],[5,1]])
+y = np.array([0,0,0,0,0,1,1,1,1,1])
+
+x_train,x_test,y_train,y_test=train_test_split(x,y, test_size=0.2,random_state=42)
+
+svc=SVC(kernel="linear")
+svc.fit(x_train, y_train)
+y_pred=svc.predict(x_test)
+
+accuracy=accuracy_score(y_test, y_pred)
+print(accuracy)
+plt.scatter(x[:,0], x[:,1],c=y)
+___________________________________________________________
+
+=> New Sample
+
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+x =np.array([[1,2],[2,3],[3,3],[4,5],[5,6],[1,5],[2,4],[3,2],[4,1],[5,1]])
+y = np.array([0,0,0,0,0,1,1,1,1,1])
+
+new_sample = [[3,4]]
+
+x_train,x_test,y_train,y_test=train_test_split(x,y, test_size=0.2,random_state=42)
+
+svc=SVC(kernel="linear")
+svc.fit(x_train, y_train)
+
+y_pred=svc.predict(new_sample)
+
+print(f"prediction :{y_pred}")
+plt.scatter(x[:,0], x[:,1],c=y)
+
+_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_
+
+7) SVM Numeric
 
 import numpy as np
 from sklearn.svm import SVC
@@ -186,3 +235,4 @@ print(f"Accuracy: {accuracy:.2f}")
 new_sample = np.array([[2.5, 3.5]])
 prediction_new = clf.predict(new_sample)
 print(f"Prediction for new sample {new_sample[0]}: {prediction_new[0]}")
+
